@@ -1,0 +1,54 @@
+on listener#modeCmd do
+  TimerSet,1,0
+  TimerSet,2,0
+  GPIO,13,0
+  if [listener#modeCmd]=0
+    TaskValueSet,2,1,0
+  else
+    TaskValueSet,2,1,1
+  endif
+  Event,evtActOnMode
+endon
+
+on System#Boot do
+  Event,evtActOnMode
+endon
+
+on evtActOnMode do
+  if [vars#mode]=0
+    Publish "Podlogowka/mode/state",0
+    Event,evtPerformSummer
+  else
+    Publish "Podlogowka/mode/state",1
+    Event,evtPerformWinter
+  endif
+endon
+
+on evtPerformSummer do
+  GPIO,13,1
+  Publish "Podlogowka/pump/state",1
+  TimerSet,1,30
+endon
+
+on evtPumpOn do
+  GPIO,13,1
+  Publish "Podlogowka/pump/state",1
+endon
+
+on evtPumpOff do
+  GPIO,13,0
+  Publish "Podlogowka/pump/state",0
+endon
+
+on Rules#Timer=1 do
+  Event,evtPumpOff
+  TimerSet,2,86000
+endon
+
+on Rules#Timer=2 do
+  Event,evtPumpOn
+  TimerSet,1,600
+endon
+
+on evtPerformWinter do
+endon
