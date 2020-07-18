@@ -67,10 +67,12 @@ endon
 on Rules#Timer=4 do
   if [Watertemp#Temperature]>25
     Event,evtPumpOn
-  elif [Watertemp#Temperature]<7
-    Event,evtPumpOn
   else
-    Event,evtPumpOff
+    if [Watertemp#Temperature]<7
+      Event,evtPumpOn
+	else
+      Event,evtPumpOff
+	endif
   endif
   TimerSet,5,900
 endon
