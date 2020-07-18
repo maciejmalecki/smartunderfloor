@@ -1,6 +1,9 @@
 on listener#modeCmd do
   TimerSet,1,0
   TimerSet,2,0
+  TimerSet,3,0
+  TimerSet,4,0
+  TimerSet,5,0
   GPIO,13,0
   if [listener#modeCmd]=0
     TaskValueSet,2,1,0
@@ -11,16 +14,16 @@ on listener#modeCmd do
 endon
 
 on System#Boot do
-  Event,evtActOnMode
+  TimerSet,3,5
 endon
 
 on evtActOnMode do
   if [vars#mode]=0
     Publish "Podlogowka/mode/state",0
-    Event,evtPerformSummer
+    Event,evtPerformWinter
   else
     Publish "Podlogowka/mode/state",1
-    Event,evtPerformWinter
+    Event,evtPerformSummer
   endif
 endon
 
@@ -42,13 +45,37 @@ endon
 
 on Rules#Timer=1 do
   Event,evtPumpOff
-  TimerSet,2,86000
+  TimerSet,2,86100
 endon
 
 on Rules#Timer=2 do
   Event,evtPumpOn
-  TimerSet,1,600
+  TimerSet,1,300
+endon
+
+on Rules#Timer=3 do
+  Event,evtActOnMode
+  Publish "Podlogowka/mode/ask",1
 endon
 
 on evtPerformWinter do
+  GPIO,13,1
+  Publish "Podlogowka/pump/state",1
+  TimerSet,4,120
+endon
+
+on Rules#Timer=4 do
+  if [Watertemp#Temperature]>25
+    Event,evtPumpOn
+  elif [Watertemp#Temperature]<7
+    Event,evtPumpOn
+  else
+    Event,evtPumpOff
+  endif
+  TimerSet,5,900
+endon
+
+on Rules#Timer=5 do
+  Event,evtPumpOn
+  TimerSet,4,120
 endon
