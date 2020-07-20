@@ -65,7 +65,7 @@ on evtPerformWinter do
 endon
 
 on Rules#Timer=4 do
-  if [Watertemp#Temperature]>25
+  if [Watertemp#Temperature]>[listener#temp]
     Event,evtPumpOn
   else
     if [Watertemp#Temperature]<7
@@ -74,7 +74,11 @@ on Rules#Timer=4 do
       Event,evtPumpOff
 	endif
   endif
-  TimerSet,5,900
+  if [listener#interval]>600
+    TimerSet,5,[listener#interval]
+  else
+    TimerSet,5,600
+  endif
 endon
 
 on Rules#Timer=5 do
