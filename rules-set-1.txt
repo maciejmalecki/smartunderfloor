@@ -5,11 +5,6 @@ on listener#modeCmd do
   TimerSet,4,0
   TimerSet,5,0
   GPIO,13,0
-  if [listener#modeCmd]=0
-    TaskValueSet,2,1,0
-  else
-    TaskValueSet,2,1,1
-  endif
   Event,evtActOnMode
 endon
 
@@ -18,29 +13,27 @@ on System#Boot do
 endon
 
 on evtActOnMode do
-  if [vars#mode]=0
-    Publish "Podlogowka/mode/state",0
+  if [listener#modeCmd]=0
     Event,evtPerformWinter
   else
-    Publish "Podlogowka/mode/state",1
     Event,evtPerformSummer
   endif
 endon
 
 on evtPerformSummer do
   GPIO,13,1
-  Publish "Podlogowka/pump/state",1
+  Publish "Podlogowka/pump/state","On"
   TimerSet,1,30
 endon
 
 on evtPumpOn do
   GPIO,13,1
-  Publish "Podlogowka/pump/state",1
+  Publish "Podlogowka/pump/state","On"
 endon
 
 on evtPumpOff do
   GPIO,13,0
-  Publish "Podlogowka/pump/state",0
+  Publish "Podlogowka/pump/state","Off"
 endon
 
 on Rules#Timer=1 do
@@ -60,7 +53,7 @@ endon
 
 on evtPerformWinter do
   GPIO,13,1
-  Publish "Podlogowka/pump/state",1
+  Publish "Podlogowka/pump/state","On"
   TimerSet,4,120
 endon
 
